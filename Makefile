@@ -17,6 +17,8 @@ geth:
 #? all: Build all packages and executables
 all:
 	$(GORUN) build/ci.go install
+	@echo "copy to Dev/bin"
+	cp build/bin/* ~/Dev/bin/
 
 #? test: Run the tests
 test: all
