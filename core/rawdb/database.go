@@ -26,13 +26,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/olekukonko/tablewriter"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/ethdb/leveldb"
 	"github.com/ethereum/go-ethereum/ethdb/memorydb"
 	"github.com/ethereum/go-ethereum/ethdb/pebble"
+	"github.com/ethereum/go-ethereum/ethdb/redis"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/olekukonko/tablewriter"
 )
 
 // freezerdb is a database wrapper that enables freezer data retrievals.
@@ -323,7 +325,7 @@ func NewPebbleDBDatabase(file string, cache int, handles int, namespace string, 
 	if err != nil {
 		return nil, err
 	}
-	return NewDatabase(db), nil
+	return NewDatabase(redis.New(db)), nil
 }
 
 const (
@@ -387,6 +389,7 @@ func openKeyValueDatabase(o OpenOptions) (ethdb.Database, error) {
 		log.Info("Using leveldb as the backing database")
 		return NewLevelDBDatabase(o.Directory, o.Cache, o.Handles, o.Namespace, o.ReadOnly)
 	}
+
 	// No pre-existing database, no user-requested one either. Default to Pebble.
 	log.Info("Defaulting to pebble as the backing database")
 	return NewPebbleDBDatabase(o.Directory, o.Cache, o.Handles, o.Namespace, o.ReadOnly, o.Ephemeral)
