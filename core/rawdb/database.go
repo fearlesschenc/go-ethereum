@@ -33,7 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb/leveldb"
 	"github.com/ethereum/go-ethereum/ethdb/memorydb"
 	"github.com/ethereum/go-ethereum/ethdb/pebble"
-	"github.com/ethereum/go-ethereum/ethdb/redis"
 	"github.com/ethereum/go-ethereum/log"
 )
 
@@ -325,7 +324,8 @@ func NewPebbleDBDatabase(file string, cache int, handles int, namespace string, 
 	if err != nil {
 		return nil, err
 	}
-	return NewDatabase(redis.New(db)), nil
+	// return NewDatabase(redis.New(db)), nil
+	return NewDatabase(db), nil
 }
 
 const (

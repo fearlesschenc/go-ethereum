@@ -28,6 +28,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gofrs/flock"
+
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -37,7 +39,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/gofrs/flock"
 )
 
 // Node is a container on which services can be registered.
@@ -190,6 +191,7 @@ func (n *Node) Start() error {
 		if err = lifecycle.Start(); err != nil {
 			break
 		}
+
 		started = append(started, lifecycle)
 	}
 	// Check if any lifecycle failed to start.
@@ -574,6 +576,7 @@ func (n *Node) RegisterLifecycle(lifecycle Lifecycle) {
 	if containsLifecycle(n.lifecycles, lifecycle) {
 		panic(fmt.Sprintf("attempt to register lifecycle %T more than once", lifecycle))
 	}
+	n.log.Info("register lifecycle", "name", reflect.TypeOf(lifecycle).String())
 	n.lifecycles = append(n.lifecycles, lifecycle)
 }
 
@@ -585,6 +588,9 @@ func (n *Node) RegisterProtocols(protocols []p2p.Protocol) {
 	if n.state != initializingState {
 		panic("can't register protocols on running/stopped node")
 	}
+	for _, p := range protocols {
+		n.log.Info("register p2p protocol", "name", p.Name, "version", p.Version)
+	}
 	n.server.Protocols = append(n.server.Protocols, protocols...)
 }
 
@@ -595,6 +601,9 @@ func (n *Node) RegisterAPIs(apis []rpc.API) {
 
 	if n.state != initializingState {
 		panic("can't register APIs on running/stopped node")
+	}
+	for _, api := range apis {
+		n.log.Info("register api", "namespace", api.Namespace, "version", api.Version, "kind", reflect.TypeOf(api).String())
 	}
 	n.rpcAPIs = append(n.rpcAPIs, apis...)
 }
