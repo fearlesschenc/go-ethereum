@@ -86,7 +86,11 @@ func MakeProtocols(backend Backend, dnsdisc enode.Iterator) []p2p.Protocol {
 	// Filter the discovery iterator for nodes advertising snap support.
 	dnsdisc = enode.Filter(dnsdisc, func(n *enode.Node) bool {
 		var snap enrEntry
-		return n.Load(&snap) == nil
+		isSnapPeer := n.Load(&snap) == nil
+		if isSnapPeer {
+			log.Info("Discovered snap peer", "node", n.String())
+		}
+		return isSnapPeer
 	})
 
 	protocols := make([]p2p.Protocol, len(ProtocolVersions))

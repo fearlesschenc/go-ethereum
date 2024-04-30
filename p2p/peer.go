@@ -354,6 +354,7 @@ func (p *Peer) handle(msg Msg) error {
 	default:
 		// it's a subprotocol message
 		proto, err := p.getProto(msg.Code)
+		log.Info("proto %s, code: %d", proto.Name, msg.Code)
 		if err != nil {
 			return fmt.Errorf("msg code out of range: %v", msg.Code)
 		}
@@ -405,6 +406,10 @@ outer:
 				continue outer
 			}
 		}
+	}
+
+	for cap, proto := range result {
+		log.Info("cap: %s, proto: %v", cap, proto)
 	}
 	return result
 }
